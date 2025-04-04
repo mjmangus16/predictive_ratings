@@ -1,6 +1,6 @@
-def adjust_flight_ratings(speed, glide, turn, fade, throw_speed, plastic_type):
+def adjust_flight_ratings(speed, glide, turn, fade, throw_speed, plastic_type, release_angle):
     """
-    Adjust the flight ratings of a disc based on the throw speed and plastic type, modifying both turn and fade values.
+    Adjust the flight ratings of a disc based on the throw speed, plastic type, and release angle.
 
     Parameters:
         speed (float): The original speed rating of the disc.
@@ -9,6 +9,7 @@ def adjust_flight_ratings(speed, glide, turn, fade, throw_speed, plastic_type):
         fade (float): The original fade rating of the disc.
         throw_speed (float): The speed of the throw in mph.
         plastic_type (str): The type of plastic the disc is made from.
+        release_angle (float): The release angle of the disc in degrees (-45 to +45).
 
     Returns:
         dict: Adjusted flight ratings with turn and fade modified.
@@ -42,11 +43,13 @@ def adjust_flight_ratings(speed, glide, turn, fade, throw_speed, plastic_type):
     # Get the stability modifier for the plastic type
     stability_modifier = plastic_stability_modifiers.get(plastic_type.lower(), 0)
 
-    # Adjust turn value
+    # Adjust turn and fade values based on throw speed and plastic type
     adjusted_turn = (turn * speed_factor) + stability_modifier
-
-    # Adjust fade value
     adjusted_fade = (fade * (intended_speed / throw_speed)) + stability_modifier
+
+    # Adjust turn and fade values based on release angle
+    adjusted_turn += release_angle / 45  # Positive release angle increases turn
+    adjusted_fade -= release_angle / 45  # Positive release angle decreases fade
 
     # Return the adjusted ratings with turn and fade modified
     return {
@@ -58,8 +61,9 @@ def adjust_flight_ratings(speed, glide, turn, fade, throw_speed, plastic_type):
 
 # Example usage
 original_ratings = {'speed': 12, 'glide': 5, 'turn': -2, 'fade': 3}
-throw_speed = 53  # Throw speed in mph
-plastic_type = 'base'  # Plastic type of the disc
+throw_speed = 65  # Throw speed in mph
+plastic_type = 'glow'  # Plastic type of the disc
+release_angle = -20  # Release angle in degrees (e.g., -20 for hyzer)
 
 adjusted_ratings = adjust_flight_ratings(
     original_ratings['speed'],
@@ -67,8 +71,9 @@ adjusted_ratings = adjust_flight_ratings(
     original_ratings['turn'],
     original_ratings['fade'],
     throw_speed,
-    plastic_type
+    plastic_type,
+    release_angle
 )
 
 print("Original Ratings:", original_ratings)
-print("Adjusted Ratings for Throw Speed", throw_speed, "mph and Plastic Type", plastic_type, ":", adjusted_ratings)
+print("Adjusted Ratings for Throw Speed", throw_speed, "mph, Plastic Type", plastic_type, "and Release Angle", release_angle, "°:", adjusted_ratings)
